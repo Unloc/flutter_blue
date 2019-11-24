@@ -686,7 +686,10 @@ public class FlutterBluePlugin implements MethodCallHandler, RequestPermissionsR
                 @Override
                 public void onBatchScanResults(List<ScanResult> results) {
                     super.onBatchScanResults(results);
-
+                    for (ScanResult result : results) {
+                        Protos.ScanResult scanResult = ProtoMaker.from(result.getDevice(), result);
+                        invokeMethodUIThread("ScanResult", scanResult.toByteArray());
+                    }
                 }
 
                 @Override
@@ -710,7 +713,7 @@ public class FlutterBluePlugin implements MethodCallHandler, RequestPermissionsR
             ScanFilter f = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(uuid)).build();
             filters.add(f);
         }
-        ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
+        ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build();
         scanner.startScan(filters, settings, getScanCallback21());
     }
 
